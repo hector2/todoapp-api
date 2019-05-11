@@ -1,13 +1,10 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"os"
-
-	"github.com/gorilla/mux"
-
+	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
@@ -18,25 +15,8 @@ type Task struct {
 	Name string `json:"name"`
 }
 
-// respondJSON makes the response with payload as json format
-func respondJSON(w http.ResponseWriter, status int, payload interface{}) {
-	response, err := json.Marshal(payload)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	w.Write([]byte(response))
-}
+func allTasks(c *gin.Context) {
 
-// respondError makes the error response with payload as json format
-func respondError(w http.ResponseWriter, code int, message string) {
-	respondJSON(w, code, map[string]string{"error": message})
-}
-
-func allTasks(rw http.ResponseWriter, req *http.Request) {
 
 	db, err := gorm.Open("postgres", os.Getenv("DATABASE_URL"))
 	defer db.Close()
@@ -46,7 +26,8 @@ func allTasks(rw http.ResponseWriter, req *http.Request) {
 
 	tasks := []Task{}
 	db.Find(&tasks)
-	respondJSON(rw, http.StatusOK, tasks)
+	//respondJSON(rw, http.StatusOK, tasks)
+	c.JSON(http.StatusOK,tasks)
 }
 
 func InitDB() {
@@ -72,10 +53,10 @@ func main() {
 	port := os.Getenv("PORT")
 
 	InitDB()
+	r := gin.Default()
 
-	r := mux.NewRouter()
 
-	r.HandleFunc("/tasks", allTasks)
+	r.GET("/tasks", allTasks)
 
 	log.Fatal(http.ListenAndServe(":"+port, r))
 }
