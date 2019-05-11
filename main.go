@@ -49,12 +49,18 @@ func allTasks(rw http.ResponseWriter, req *http.Request) {
 	respondJSON(rw, http.StatusOK, tasks)
 }
 
-func DBMigrate() {
+func InitDB() {
 	db, err := gorm.Open("postgres", os.Getenv("DATABASE_URL"))
 	defer db.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
+	db.DB().SetMaxIdleConns(10)
+
+	// SetMaxOpenConns sets the maximum number of open connections to the database.
+	db.DB().SetMaxOpenConns(100)
 
 	//migrations
 	db.AutoMigrate(&Task{})
@@ -65,7 +71,7 @@ func main() {
 	// Heroku supplies your port via environment variable
 	port := os.Getenv("PORT")
 
-	DBMigrate()
+	InitDB()
 
 	r := mux.NewRouter()
 
