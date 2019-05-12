@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	_ "todoapp-api/data/utils"
 	"todoapp-api/dto"
 
@@ -24,8 +25,25 @@ func newTask(c *gin.Context) {
 		return
 	}
 
-
 	c.JSON(http.StatusCreated, repository.CreateTask(json))
+}
+
+func modifyTask(c *gin.Context) {
+	var json dto.UpdateFields
+	if err := c.ShouldBindJSON(&json); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	id := c.Param("id")
+
+	idnumber, err := strconv.Atoi(id)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(http.StatusOK, repository.UpdateTask(idnumber, json.Name))
 }
 
 //http://www.golangprograms.com/golang-restful-api-using-grom-and-gorilla-mux.html
@@ -36,6 +54,7 @@ func main() {
 
 	r.GET("/tasks", allTasks)
 	r.POST("tasks", newTask)
+	r.PUT("tasks/:id", modifyTask)
 
 	log.Fatal(http.ListenAndServe(":"+port, r))
 }

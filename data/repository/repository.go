@@ -33,3 +33,27 @@ func CreateTask(task dto.Task) dto.Task {
 	return task
 }
 
+func UpdateTask(id int, name string) dto.Task {
+
+	db, err := gorm.Open("postgres", os.Getenv("DATABASE_URL"))
+	defer db.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	task, err := getTaskOrNil(db, id)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	task.Name = name
+	db.Save(task)
+	return task
+}
+
+func getTaskOrNil(db *gorm.DB, id int) (dto.Task,error) {
+	task := dto.Task{}
+	return task, db.First(&task, id).Error
+}
+
