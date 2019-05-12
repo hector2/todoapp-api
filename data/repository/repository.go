@@ -3,11 +3,12 @@ package repository
 import (
 	"log"
 	"os"
-	"todoapp-api/data/model"
+	"todoapp-api/dto"
+
 	"github.com/jinzhu/gorm"
 )
 
-func GetAllTasks() []model.Task {
+func GetAllTasks() []dto.Task {
 
 	db, err := gorm.Open("postgres", os.Getenv("DATABASE_URL"))
 	defer db.Close()
@@ -15,7 +16,20 @@ func GetAllTasks() []model.Task {
 		log.Fatal(err)
 	}
 
-	tasks := []model.Task{}
+	tasks := []dto.Task{}
 	db.Find(&tasks)
 	return tasks
 }
+
+func CreateTask(task dto.Task) dto.Task {
+	db, err := gorm.Open("postgres", os.Getenv("DATABASE_URL"))
+	defer db.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	db.Create(&task)
+
+	return task
+}
+

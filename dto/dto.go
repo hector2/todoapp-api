@@ -1,4 +1,4 @@
-package model
+package dto
 
 import (
 	"github.com/jinzhu/gorm"
@@ -7,6 +7,5 @@ import (
 //Task comment
 type Task struct {
 	gorm.Model
-	Name string `json:"name"`
+	Name string `json:"name" binding:"required"`
 }
-

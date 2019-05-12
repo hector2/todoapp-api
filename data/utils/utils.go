@@ -3,7 +3,7 @@ package utils
 import (
 	"log"
 	"os"
-	"todoapp-api/data/model"
+	"todoapp-api/dto"
 
 	"github.com/jinzhu/gorm"
 
@@ -24,5 +24,5 @@ func init() {
 	db.DB().SetMaxOpenConns(100)
 
 	//migrations
-	db.AutoMigrate(&model.Task{})
+	db.AutoMigrate(&dto.Task{})
 }
