@@ -46,6 +46,19 @@ func modifyTask(c *gin.Context) {
 	c.JSON(http.StatusOK, repository.UpdateTask(idnumber, json.Name))
 }
 
+func deleteTask(c *gin.Context) {
+
+	id := c.Param("id")
+
+	idnumber, err := strconv.Atoi(id)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(http.StatusOK, repository.DeleteTask(idnumber))
+}
+
 //http://www.golangprograms.com/golang-restful-api-using-grom-and-gorilla-mux.html
 func main() {
 	// Heroku supplies your port via environment variable
@@ -55,6 +68,7 @@ func main() {
 	r.GET("/tasks", allTasks)
 	r.POST("tasks", newTask)
 	r.PUT("tasks/:id", modifyTask)
+	r.DELETE("tasks/:id",deleteTask)
 
 	log.Fatal(http.ListenAndServe(":"+port, r))
 }
